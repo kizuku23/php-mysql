@@ -19,11 +19,7 @@
 <h2>Practice</h2>
 
 <?php
-try {
-  $db = new PDO('mysql:dbname=mydb;host=localhost;charaset=utf8','root','root');
-} catch(PDOException $e) {
-  echo 'DB接続エラー: ' .$e->getMessage();
-}
+require('dbconnect.php');
 
 // $count = $db->exec('INSERT INTO my_items SET maker_id=1, item_name="もも", price=210, keyword="缶詰，ピンク，甘い"');
 // echo $count .'件のデータを挿入しました';
@@ -32,8 +28,18 @@ try {
 // while ($record = $records->fetch()) {
 //   print($record['item_name'] ."\n");
 // }
+if (isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])) {
+  $page = $_REQUEST['page'];
+} else {
+  $page = 1;
+}
 
-$memos = $db->query('SELECT * FROM memos ORDER BY id DESC');
+// $page = $_REQUEST['page'];
+$start = 5 * ($page - 1);
+
+$memos = $db->prepare('SELECT * FROM memos ORDER BY id DESC LIMIT ?, 5');
+$memos->bindParam(1, $start, PDO::PARAM_INT);
+$memos->execute();
 ?>
 
 <article>
